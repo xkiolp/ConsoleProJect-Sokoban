@@ -49,17 +49,30 @@ class Program
         {
             PrintMoveCount();
             PrintMap();
-            
+
+            if (IsGameClear())
+            {
+                Console.WriteLine("종료")
+            }
             //입력 받기 (W, A, S, D, Q, 그외.)
             
-            //다음 이동할 곳 위치 계산
-            
-            //범위 밖일때.
-            
-            //벽이 있을경우.
+            ConsoleKey inputKey;
+            if (!TryGetInput(out inputKey)) continue;
             
             //종료 버튼이 눌렸을 경우.
+            if (inputKey == ConsoleKey.Q)
+            {
+                return false;
+            }
             
+            //다음 이동할 곳 위치 계산
+            Position nextPos = GetNextPosition(inputKey);
+            //범위 밖일때.
+            if(OutOfArray(nextPos)) continue;
+            //벽이 있을경우.
+
+
+
         }
 
 
@@ -92,5 +105,48 @@ class Program
             }
             Console.WriteLine();
         }
+    }
+
+    static bool TryGetInput(out ConsoleKey inputKey)
+    {
+        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+        inputKey = keyInfo.Key;
+        
+        return inputKey == ConsoleKey.W ||
+               inputKey == ConsoleKey.A ||
+               inputKey == ConsoleKey.S ||
+               inputKey == ConsoleKey.D ||
+               inputKey == ConsoleKey.Q;
+    }
+    static void IsGameClear()
+    {
+        
+    }
+
+    static Position GetNextPosition(ConsoleKey inputKey)
+    {
+        Position nextPos = new Position();
+        nextPos.X = _playerPosition.X;
+        nextPos.Y = _playerPosition.Y;
+
+        if (inputKey == ConsoleKey.W)
+            nextPos.Y--;
+        if (inputKey == ConsoleKey.A)
+            nextPos.X--;
+        if (inputKey == ConsoleKey.S)
+            nextPos.Y++;
+        if (inputKey == ConsoleKey.D)
+            nextPos.X++;
+        
+        return nextPos;
+    }
+
+    static bool OutOfArray(Position nextPos)
+    {
+        if (nextPos.X < 0 || nextPos.X >= Map.GetLength(1))
+            return true;
+        if (nextPos.Y < 0 || nextPos.Y >= Map.GetLength(0))
+            return true;
+        else return false;
     }
 }
