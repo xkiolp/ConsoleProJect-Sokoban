@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\RiderProjects\\Console프로젝트\\Console프로젝트\\Console프로젝트.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Documents\\GitHub\\ConsoleProJect-Sokoban\\Console프로젝트\\Console프로젝트\\Console프로젝트.csproj",
       "projectName": "Console프로젝트",
-      "projectPath": "D:\\RiderProjects\\Console프로젝트\\Console프로젝트\\Console프로젝트.csproj",
+      "projectPath": "C:\\Users\\user\\Documents\\GitHub\\ConsoleProJect-Sokoban\\Console프로젝트\\Console프로젝트\\Console프로젝트.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "D:\\RiderProjects\\Console프로젝트\\Console프로젝트\\obj\\",
+      "outputPath": "C:\\Users\\user\\Documents\\GitHub\\ConsoleProJect-Sokoban\\Console프로젝트\\Console프로젝트\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

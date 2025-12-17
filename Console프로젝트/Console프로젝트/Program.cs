@@ -52,7 +52,7 @@ class Program
 
             if (IsGameClear())
             {
-                Console.WriteLine("종료")
+                Console.WriteLine("종료");
             }
             //입력 받기 (W, A, S, D, Q, 그외.)
             
@@ -62,20 +62,40 @@ class Program
             //종료 버튼이 눌렸을 경우.
             if (inputKey == ConsoleKey.Q)
             {
-                return false;
+                Console.WriteLine("종료 버튼이 눌렸습니다 종료합니다");
+                break;
+                
             }
             
             //다음 이동할 곳 위치 계산
             Position nextPos = GetNextPosition(inputKey);
+            
             //범위 밖일때.
             if(OutOfArray(nextPos)) continue;
             //벽이 있을경우.
+            char targetTile = GetTile(nextPos);
+            if (targetTile == WALL)
+            {
+                continue;
+            }
 
-
+            //이동 구현
+            
+            //플레이어 단순 이동
+            if (targetTile == EMPTY || targetTile == GOAL)
+            {
+                Move(_playerPosition, nextPos);
+            }
+            
+            //폭탄 밀면서 이동
+            if (targetTile == BOMB || targetTile == BOMB_ON_GOAL)
+            {
+                
+            }
 
         }
-
-
+        
+        
     }
     struct Position
     {
@@ -118,9 +138,10 @@ class Program
                inputKey == ConsoleKey.D ||
                inputKey == ConsoleKey.Q;
     }
-    static void IsGameClear()
+    static bool IsGameClear()
     {
-        
+
+        return false;
     }
 
     static Position GetNextPosition(ConsoleKey inputKey)
@@ -143,10 +164,24 @@ class Program
 
     static bool OutOfArray(Position nextPos)
     {
-        if (nextPos.X < 0 || nextPos.X >= Map.GetLength(1))
+        if (nextPos.X < 0 || nextPos.X >= map.GetLength(1))
             return true;
-        if (nextPos.Y < 0 || nextPos.Y >= Map.GetLength(0))
+        if (nextPos.Y < 0 || nextPos.Y >= map.GetLength(0))
             return true;
         else return false;
+    }
+
+    static char GetTile(Position nextPos)
+    {
+        return map[nextPos.X, nextPos.Y];
+    }
+
+    static void Move(Position playerPos, Position nextPos)
+    {
+        //origin = player or playerongoal, destinationtile = empty or goal
+        char originTile = GetTile(playerPos);
+        char destinationTile = GetTile(nextPos);
+        
+
     }
 }
