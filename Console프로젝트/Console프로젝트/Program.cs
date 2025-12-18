@@ -124,7 +124,7 @@ class Program
     static void PrintGuideText()
     {
         Console.Clear();
-        Console.WriteLine("이동  W: 위, A: 왼쪽, S: 아래, D: 오른쪽");
+        Console.WriteLine("이동  W: 위, A: 왼쪽, S: 아래, D: 오른쪽, Shift를 같이 눌러 폭탄과 스왑");
         Console.WriteLine("플레이어를 이동시켜 폭탄을 목표지점에 밀어넣으세요");
     }
 
