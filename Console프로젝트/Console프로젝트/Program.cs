@@ -94,9 +94,21 @@ class Program
             //폭탄 밀면서 이동
             if (targetTile == BOMB || targetTile == BOMB_ON_GOAL)
             {
+                //shift가 눌린경우 폭탄과 위치 스왑.
                 if (pressedExtraKey == "Shift")
                 {
                     SwapPlayerWithBomb(nextPos);
+                    _playerPosition = nextPos;
+                    _moveCount++;
+                }
+                //alt가 눌린경우 폭탄을 물체에 닿을때까지 이동시킴.
+                // next계속 할때 부딪히는 곳 구하고
+                // 부딪힌곳의 타일을 폭탄으로 변경.
+                // 플레이어 이전 위치 원상복구.
+                // 플레이어 다음위치 이동.
+                else if (pressedExtraKey == "Alt")
+                {
+                    PushBombUntilStop(nextPos);
                     _playerPosition = nextPos;
                     _moveCount++;
                 }
@@ -152,10 +164,15 @@ class Program
         ConsoleKeyInfo keyInfo = Console.ReadKey(true);
         inputKey = keyInfo.Key;
         bool isShift = keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift); // Shift 여부
+        bool isAlt = keyInfo.Modifiers.HasFlag(ConsoleModifiers.Alt); // Alt 여부
         
         if (isShift)
         {
             pressedTogether = "Shift";
+        }
+        else if (isAlt)
+        {
+            pressedTogether = "Alt";
         }
         else pressedTogether = "";
         
@@ -332,5 +349,62 @@ class Program
                 SetTile(nextPos, PLAYER_ON_GOAL);
             }
         }
+    }
+
+    static void PushBombUntilStop(Position nextPos)
+    {
+        Position direction = new Position()
+        {
+            X = nextPos.X - _playerPosition.X,
+            Y = nextPos.Y - _playerPosition.Y
+        };
+        
+        int nextCount = 0;
+        char nextTile = GetTile(nextPos);
+        int XMove = _playerPosition.X + direction.X; //폭탄의 좌표
+        int YMove = _playerPosition.Y + direction.Y;
+        
+        while (true)
+        {
+            XMove += direction.X;
+            YMove += direction.Y;
+
+            if (map[XMove, YMove] == EMPTY || map[XMove, YMove] == GOAL)
+            {
+                nextCount++;
+            }
+            else
+            {
+                XMove -= direction.X;
+                YMove -= direction.Y; //XMove, YMove = 폭탄이 이동할 곳의 좌표
+                
+                if (map[XMove, YMove] == EMPTY)
+                {
+                    map[XMove, YMove] = BOMB;
+                }
+                else if (map[XMove, YMove] == GOAL)
+                {
+                    map[XMove, YMove] = BOMB_ON_GOAL;
+                }
+                else
+                    map[XMove, YMove] = BOMB;
+                
+                
+                //기존 폭탄의 위치의 폭탄 제거
+                if (nextTile == BOMB)
+                {
+                    SetTile(nextPos, EMPTY);
+                }
+                else if(nextTile == BOMB_ON_GOAL)
+                {
+                    SetTile(nextPos, GOAL);
+                }
+                //Console.WriteLine("발차기 도착 좌표: " + XMove + " " + YMove);
+                //플레이어 이동 (move함수 사용)
+                PlayerMove((_playerPosition), nextPos);
+                break;
+            }
+        }
+
     }
 }
