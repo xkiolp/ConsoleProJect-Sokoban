@@ -52,7 +52,8 @@ class Program
 
             if (IsGameClear())
             {
-                Console.WriteLine("종료");
+                Console.WriteLine("게임 클리어! 종료");
+                break;
             }
             //입력 받기 (W, A, S, D, Q, 그외.)
             
