@@ -84,13 +84,23 @@ class Program
             //플레이어 단순 이동
             if (targetTile == EMPTY || targetTile == GOAL)
             {
-                Move(_playerPosition, nextPos);
+                PlayerMove(_playerPosition, nextPos);
+                _playerPosition = nextPos;
+                _moveCount++;
             }
             
             //폭탄 밀면서 이동
             if (targetTile == BOMB || targetTile == BOMB_ON_GOAL)
             {
-                
+                if (!TryPushingBomb(_playerPosition, nextPos))
+                {
+                    continue;
+                }
+                else
+                {
+                    _playerPosition = nextPos;
+                    _moveCount++;
+                }
             }
 
         }
@@ -140,8 +150,18 @@ class Program
     }
     static bool IsGameClear()
     {
+        //전 루프를 돌았을때 BOMB가 존재하지 않을 경우 게임 클리어
+        for (int i = 0; i < map.GetLength(0);i++)
+        {
+            for (int j = 0; j < map.GetLength(1); j++)
+            {
+                if (map[i, j] == BOMB)
+                    return false;
 
-        return false;
+            }
+            
+        }
+        return true;
     }
 
     static Position GetNextPosition(ConsoleKey inputKey)
@@ -151,13 +171,13 @@ class Program
         nextPos.Y = _playerPosition.Y;
 
         if (inputKey == ConsoleKey.W)
-            nextPos.Y--;
-        if (inputKey == ConsoleKey.A)
             nextPos.X--;
+        if (inputKey == ConsoleKey.A)
+            nextPos.Y--;
         if (inputKey == ConsoleKey.S)
-            nextPos.Y++;
-        if (inputKey == ConsoleKey.D)
             nextPos.X++;
+        if (inputKey == ConsoleKey.D)
+            nextPos.Y++;
         
         return nextPos;
     }
@@ -176,12 +196,91 @@ class Program
         return map[nextPos.X, nextPos.Y];
     }
 
-    static void Move(Position playerPos, Position nextPos)
-    {
+    static void PlayerMove(Position playerPos, Position nextPos)
+    {//기존 타일 = 현재 타일 - playerPos, next타일 = nextPos의 타일 + playerPos
         //origin = player or playerongoal, destinationtile = empty or goal
-        char originTile = GetTile(playerPos);
-        char destinationTile = GetTile(nextPos);
-        
+        char fromTile = GetTile(playerPos);
+        char toTile = GetTile(nextPos);
 
+        char originTile = fromTile;
+        char destinationTile = toTile;
+        
+        //타일 변환.
+        //origin tile - player면 empty, player_ON_goal이면 goal.
+        if (fromTile == PLAYER)
+        {
+            originTile = EMPTY;
+        }
+        else if (fromTile == PLAYER_ON_GOAL)
+        {
+            originTile = GOAL;
+        }
+        else
+        {
+            originTile = fromTile;
+        }
+        //destination tile
+        if (toTile == EMPTY)
+        {
+            destinationTile = PLAYER;
+        }
+        else if (toTile == GOAL)
+        {
+            destinationTile = PLAYER_ON_GOAL;
+        }
+        else
+        {
+            destinationTile = toTile;
+        }
+
+        SetTile(playerPos, originTile);
+        SetTile(nextPos, destinationTile);
+
+    }
+
+    static void SetTile(Position playerPos, char tile)
+    {
+        map[playerPos.X, playerPos.Y] = tile;
+    }
+
+    static bool TryPushingBomb(Position playerPos, Position nextPos)
+    {
+        char nextTile = GetTile(nextPos);
+        
+        //폭탄을 밀 위치 구하기. 
+        Position pushedBombLocation = new Position()
+        {
+            X = nextPos.X + (nextPos.X - playerPos.X),
+            Y = nextPos.Y + (nextPos.Y - playerPos.Y)
+        };
+
+        //폭탄을 밀 위치가 비어있는지 (EMPTY or GOAL)
+        char pushedBombLocationTile = GetTile(pushedBombLocation);
+
+        if (!(pushedBombLocationTile == EMPTY || pushedBombLocationTile == GOAL))
+        {
+            return false;
+        }
+        //폭탄을 밀 위치에 폭탄 배치 (EMPTY -> BOMB, GOAL -> BOMB_ON_GOAL)
+        if (pushedBombLocationTile == EMPTY)
+        {
+            SetTile(pushedBombLocation, BOMB);
+        }
+        else if (pushedBombLocationTile == GOAL)
+        {
+            SetTile(pushedBombLocation, BOMB_ON_GOAL);
+        }
+        //기존 폭탄의 위치의 폭탄 제거
+        if (nextTile == BOMB)
+        {
+            SetTile(nextPos, EMPTY);
+        }
+        else if(nextTile == BOMB_ON_GOAL)
+        {
+            SetTile(nextPos, GOAL);
+        }
+        //플레이어 이동 (move함수 사용)
+        PlayerMove(playerPos, nextPos);
+        return true;
     }
 }
