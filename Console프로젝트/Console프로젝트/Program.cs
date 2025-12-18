@@ -58,7 +58,8 @@ class Program
             //입력 받기 (W, A, S, D, Q, 그외.)
             
             ConsoleKey inputKey;
-            if (!TryGetInput(out inputKey)) continue;
+            string pressedExtraKey;
+            if (!TryGetInput(out inputKey, out pressedExtraKey)) continue;
             
             //종료 버튼이 눌렸을 경우.
             if (inputKey == ConsoleKey.Q)
@@ -93,7 +94,13 @@ class Program
             //폭탄 밀면서 이동
             if (targetTile == BOMB || targetTile == BOMB_ON_GOAL)
             {
-                if (!TryPushingBomb(_playerPosition, nextPos))
+                if (pressedExtraKey == "Shift")
+                {
+                    SwapPlayerWithBomb(nextPos);
+                    _playerPosition = nextPos;
+                    _moveCount++;
+                }
+                else if (!TryPushingBomb(_playerPosition, nextPos))
                 {
                     continue;
                 }
@@ -137,11 +144,20 @@ class Program
             Console.WriteLine();
         }
     }
-
-    static bool TryGetInput(out ConsoleKey inputKey)
+    
+    //첫번째 키를 눌렀을때 shift가 눌러져있으면 다시 입력을 받고 inputKey1=shift, inputkey2=wasd반환 
+    static bool TryGetInput(out ConsoleKey inputKey, out string pressedTogether)
     {
+        
         ConsoleKeyInfo keyInfo = Console.ReadKey(true);
         inputKey = keyInfo.Key;
+        bool isShift = keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift); // Shift 여부
+        
+        if (isShift)
+        {
+            pressedTogether = "Shift";
+        }
+        else pressedTogether = "";
         
         return inputKey == ConsoleKey.W ||
                inputKey == ConsoleKey.A ||
@@ -283,5 +299,38 @@ class Program
         //플레이어 이동 (move함수 사용)
         PlayerMove(playerPos, nextPos);
         return true;
+    }
+
+    static void SwapPlayerWithBomb(Position nextPos)
+    {
+        char currentTile = GetTile(_playerPosition);
+        char nextTile = GetTile(nextPos);
+
+        if (currentTile == PLAYER)
+        {
+            if (nextTile == BOMB)
+            {
+                SetTile(_playerPosition, BOMB);
+                SetTile(nextPos, PLAYER);
+            }
+            else if (nextTile == BOMB_ON_GOAL)
+            {
+                SetTile(_playerPosition, BOMB);
+                SetTile(nextPos, PLAYER_ON_GOAL);
+            }
+        }
+        else if (currentTile == PLAYER_ON_GOAL)
+        {
+            if (nextTile == BOMB)
+            {
+                SetTile(_playerPosition, BOMB_ON_GOAL);
+                SetTile(nextPos, PLAYER);
+            }
+            else if (nextTile == BOMB_ON_GOAL)
+            {
+                SetTile(_playerPosition, BOMB_ON_GOAL);
+                SetTile(nextPos, PLAYER_ON_GOAL);
+            }
+        }
     }
 }
